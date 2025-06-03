@@ -1,0 +1,65 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ContextAlert from '../components/ContextAlert.astro';
+import Markdown from '../components/Markdown.astro';
+import { cacheHeaders, randomInt } from '../utils';
+
+export const prerender = false;
+
+const tags = ['/community', 'cats-related', 'all-pets-related'];
+const headers = cacheHeaders(365, tags);
+
+Object.entries(headers).map(([k, v]) => {
+    Astro.response.headers.set(k, v);
+});
+
+const explainer = `
+Welcome to Pixelated Story | Let’s Build Something Amazing Together.
+
+Pixelated Story isn’t just a name. It’s what we’ve lived.
+What started as a ~50 member Discord built from passion, chaos, and Minecraft blocks turned into something deeper, a growing community forged through shared memories, trials, and friendships. We’ve been through the drama. We’ve rebuilt from ruins. We’ve restarted when the screen felt too pixelated to see clearly and somehow came back stronger each time.
+
+We’re not just another chat server. We’re a story you get to write with others.
+For those tired of shallow scrolls and empty pings, this is where the real stuff happens. The blurred beginnings. The inside jokes. The wild modded nights. The survival builds that outlived worlds. One moment you’re mining alone, the next, you’re part of a saga.
+
+We host Minecraft servers—vanilla, modded, and everything in between. But that’s just the game.
+
+What matters is the connection. The friendships. The story.
+
+So if you’re looking for a place to belong—not just to talk, but to matter—you’ve found it.
+Here, every message, every block placed, every joke shared becomes another pixel in our shared canvas.
+
+This is Pixelated Story.
+Let’s keep the story going.
+`;
+
+const exampleTag = tags[randomInt(0, tags.length - 1)];
+---
+
+<Layout title="Pixelated | Community">
+    <h1 class="mb-10">Community</h1>
+    <Markdown content={explainer} class="mb-10" />
+    <div class="flex flex-wrap gap-4">
+        <button class="btn" href="fluffix.host">Cheap Hosting</button>
+        <button class="btn" href="https://www.patreon.com/checkout/pixelatedstory?rid=22123848">Patreon</button>
+    </div>
+</Layout>
+
+<script>
+    function revalidate(tag: string) {
+        fetch('/api/revalidate', {
+            method: 'POST',
+            body: JSON.stringify({ tags: [tag] }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        alert(`Invalidated tag: ${tag}`);
+    }
+
+    const revalidateButton = document.querySelectorAll('button.revalidate-button')[0];
+    revalidateButton.addEventListener('click', (e) => {
+        const tag = (e.target as HTMLButtonElement).getAttribute('data-tag');
+        revalidate(tag);
+    });
+</script>
